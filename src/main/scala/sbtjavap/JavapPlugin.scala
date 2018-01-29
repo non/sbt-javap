@@ -4,8 +4,10 @@ import sbt._
 import Keys._
 import complete.DefaultParsers._
 import Serialization.Implicits._
+import java.io._
+import java.util.stream.Collectors
 import sbt.complete.Parser
-import scala.sys.process.Process
+import scala.collection.JavaConverters._
 import scala.reflect.NameTransformer
 import xsbti.api.{ClassLike, DefinitionType}
 
@@ -73,14 +75,28 @@ object JavapPlugin extends AutoPlugin {
         }.evaluated
       )
 
+  def readAll(is: InputStream): String =
+    new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.joining("\n"))
+
   def runJavap(streams: TaskStreams, r: ScalaRun, cls: String, dir: File, cp: Classpath, opts: List[String]): Unit = {
     val jars = cp.map(_.data.toString).mkString(":")
     val args = List("javap","-classpath", jars) ::: opts ::: List(cls)
-    val proc = Process(args)
     dir.mkdirs()
     val dest = dir / s"$cls.bytecode"
-    println(s"decompiling $cls to $dest")
 
-    (proc #> dest).run()
+    val pb = new ProcessBuilder(args.asJava)
+    val proc = pb.start()
+    val output = readAll(proc.getInputStream())
+    val errors = readAll(proc.getErrorStream())
+    val retval = proc.waitFor()
+
+    if (retval == 0) {
+      println(s"decompiling $cls to $dest")
+      val pw = new PrintWriter(dest)
+      pw.print(output)
+      pw.close()
+    } else {
+      println(errors)
+    }
   }
 }
