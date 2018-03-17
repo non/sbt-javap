@@ -80,9 +80,10 @@ object JavapPlugin extends AutoPlugin {
 
   def runJavap(streams: TaskStreams, r: ScalaRun, cls: String, dir: File, cp: Classpath, opts: List[String]): Unit = {
     val jars = cp.map(_.data.toString).mkString(":")
-    val args = List("javap","-classpath", jars) ::: opts ::: List(cls)
+    val args = List("javap", "-classpath", jars) ::: opts ::: List(cls)
     dir.mkdirs()
     val dest = dir / s"$cls.bytecode"
+    streams.log debug s"decompiling $cls to $dest"
 
     val pb = new ProcessBuilder(args.asJava)
     val proc = pb.start()
@@ -91,12 +92,9 @@ object JavapPlugin extends AutoPlugin {
     val retval = proc.waitFor()
 
     if (retval == 0) {
-      println(s"decompiling $cls to $dest")
-      val pw = new PrintWriter(dest)
-      pw.print(output)
-      pw.close()
+      streams.log info output
     } else {
-      println(errors)
+      throw new RuntimeException(errors)
     }
   }
 }
