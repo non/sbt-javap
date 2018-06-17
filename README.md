@@ -9,7 +9,7 @@
 Java provides the `javap` tool to disassemble and inspect Java
 bytecode. This allows authors to see how their code operates at a low
 level, to understand how high-level Scala concepts are encoded, and to
-potentially sport performance issues.
+potentially spot performance issues.
 
 One challenge with using `javap` is correctly specifying a classpath.
 Since SBT knows your project's classpath, *sbt-javap* can
