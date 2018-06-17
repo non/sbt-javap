@@ -79,9 +79,11 @@ public abstract class scala.Unit {
 Scala uses name-mangling to encode various types of names into the
 single Java class namespace. Here are some examples:
 
- * Scala objects (`object Foo`) have a `$` suffix appended.
- * Scala traits (`trait Bar`) have a `$class` suffix appended.
- * Scala classes use their names as normal (but see other rules).
+ * Scala objects (`object Foo`) have a `$` suffix appended (`Foo$`).
+ * Scala traits (`trait Bar`) have a `$class` suffix appended (`Bar$class`).
+ * Scala classes (`class Qux`) use their names as normal (`Qux`).
+
+(In all of the above cases the other name-mangling rules may still apply.)
 
 Scala types are often found inside of `object` values as a form of
 namespacing. Scala uses a `$` delimiter to mangle these names. For
@@ -93,6 +95,14 @@ example, `+` is a valid name (e.g. `object + { ... }`), and would be
 encoded in Java as `$plus`. If your class/trait/object has a name
 containing these characters, you'll need to determine how the name was
 mangled.
+
+It's often useful to use the REPL to see how particular characters of
+a name are encoded:
+
+```
+scala> object +*%
+defined object $plus$times$percent
+```
 
 ### future work
 
