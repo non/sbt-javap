@@ -74,6 +74,11 @@ public abstract class scala.Unit {
 (END)
 ```
 
+Note that you can decompile any Scala or Java class that's on your
+classpath, not just classes that you defined. Decompiling classes from
+your dependencies (or from the standard library) can be very
+illuminating.
+
 ### name-mangling
 
 Scala uses name-mangling to encode various types of names into the
