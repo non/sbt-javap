@@ -80,7 +80,7 @@ object JavapPlugin extends AutoPlugin {
 
   def runJavap(streams: TaskStreams, r: ScalaRun, cls: String, dir: File, cp: Classpath, opts: List[String]): Unit = {
     val jars = cp.map(_.data.toString).mkString(":")
-    val args = List("javap","-classpath", jars) ::: opts ::: List(cls)
+    val args = List("javap", "-classpath", jars) ::: opts ::: List(cls)
     dir.mkdirs()
     val dest = dir / s"$cls.bytecode"
 
@@ -95,8 +95,17 @@ object JavapPlugin extends AutoPlugin {
       val pw = new PrintWriter(dest)
       pw.print(output)
       pw.close()
+      pager(dest)
     } else {
       println(errors)
     }
+  }
+
+  def pager(file: File): Unit = {
+    import java.lang.ProcessBuilder
+    val pb = new ProcessBuilder("less", file.toString)
+    pb.inheritIO()
+    val p = pb.start()
+    p.waitFor()
   }
 }
